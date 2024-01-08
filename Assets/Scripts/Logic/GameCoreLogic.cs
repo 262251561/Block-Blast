@@ -360,7 +360,7 @@ public class GameCoreLogic
         return __mapData[mapIndex].userData;
     }
 
-    public GameState PushStep(
+    public unsafe GameState PushStep(
         int index, 
         int mapIndex, 
         List<int> highLightGrids, 
@@ -409,25 +409,47 @@ public class GameCoreLogic
             score += gameMeta.blastScoreArray[scoreIndex] * scoreScale;
         }
 
-        //检测是否结束
-        bool isEmpty = true, isAllFail = false;
-        int i, length = RoundState.MAX_COUNT;
-        __pushHandler.highLightGrids = null;
-        for (i=0; i<length; ++i)
+        int emptyCount = 0;
+        int* noneEmptyIndices = stackalloc int[3];
+        int i;
+        for(i=0; i< RoundState.MAX_COUNT; ++i)
         {
-            //遍历所有的空格子，尝试放进去
-            if(!currentRoungData.IsNodeEmpty(i) )
-            {
-                isEmpty = false;
-            }
+            if (!currentRoungData.IsNodeEmpty(i))
+                noneEmptyIndices[emptyCount++] = i;
         }
 
-        if (isAllFail)
-            return GameState.FAIL;
+        isRefreshEnable = emptyCount == 0;
+
+        if (emptyCount > 0)
+        {
+            //遍历所有的空格子，尝试放进去
+            bool anySuccess = false;
+            int length = __width, j, height = __height, k;
+            for (i = 0; i < length; ++i)
+            {
+                for (j = 0; j < height; ++j)
+                {
+                    for (k = 0; k < emptyCount; ++k)
+                    {
+                        if (__CheckPushGrid(noneEmptyIndices[k], j * __width + i))
+                        {
+                            anySuccess = true;
+                        }
+                    }
+
+                    if (anySuccess)
+                        break;
+                }
+
+                if (anySuccess)
+                    break;
+            }
+
+            if (!anySuccess)
+                return GameState.FAIL;
+        }
 
         //如果没结束，检测是否为最后一道
-        isRefreshEnable = isEmpty;
-
         return GameState.RUNNING;
     }
 }
