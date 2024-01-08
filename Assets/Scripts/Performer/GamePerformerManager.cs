@@ -107,17 +107,18 @@ public class GamePerformerManager : MonoBehaviour
                     //push to grid
                     int startX = mapIndex % gameMeta.mapWidth;
                     int startY = mapIndex / gameMeta.mapWidth;
-                    int endX = startX + blockData.width;
-                    int endY = startY + blockData.height;
 
-                    for (int x = startX; x < endX; ++x)
+                    for (int x = 0; x < blockData.width; ++x)
                     {
-                        for (int y = startY; y < endY; ++y)
+                        for (int y = 0; y < blockData.height; ++y)
                         {
-                            int tmpMapIndex = x + y * gameMeta.mapWidth;
+                            if (blockData.dataArray[y*blockData.width + x] == 0)
+                                continue;
+
+                            int tmpMapIndex = x+startX + (y+startY) * gameMeta.mapWidth;
                             var gridSprite = __owner.__AllocateGridSprite();
                             gridSprite.transform.SetParent(__owner.gridRoot, false);
-                            gridSprite.transform.localPosition = ComputePosition(x, y, 0.0f);
+                            gridSprite.transform.localPosition = ComputePosition(x + startX, y + startY, 0.0f);
                             __owner.__coreLogic.SetMapUserData(tmpMapIndex, gridSprite);
                         }
                     }
@@ -174,6 +175,7 @@ public class GamePerformerManager : MonoBehaviour
         for(i=0; i<length; ++i)
         {
             var node = lineNodes[i];
+
             var bs = __AllocateBlockSprite();
             bs.ApplyBlock(
                 spPrefab,

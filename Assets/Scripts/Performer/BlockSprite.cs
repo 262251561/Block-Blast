@@ -97,6 +97,9 @@ public class BlockSprite : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             for(int y=0; y<blockData.height; ++y)
             {
+                if (blockData.dataArray[y * blockData.width + x] == 0)
+                    continue;
+
                 var spNode = __AllocateSP(sprite, spPrefab);
                 spNode.transform.SetParent(transform, false);
                 var localPos = new Vector3(x * gridSize + halfGridSize, y * gridSize + halfGridSize, 0.0f);

@@ -226,11 +226,14 @@ public class GameCoreLogic
         if (endX > __width || endY > __height || startX < 0 || startY < 0)
             return false;
 
-        for (int x = startX; x < endX; ++x)
+        for (int x = 0; x < blockData.width; ++x)
         {
-            for (int y = startY; y < endY; ++y)
+            for (int y = 0; y < blockData.height; ++y)
             {
-                var tmpMapIndex = y * __width + x;
+                if (blockData.dataArray[x + y * blockData.width] == 0)
+                    continue;
+
+                var tmpMapIndex = (y+startY) * __width + x+startX;
                 if (__mapData[tmpMapIndex].value != GRID_EMPTY)
                 {
                     return false;
@@ -263,11 +266,14 @@ public class GameCoreLogic
         __fillStack.Clear();
 
         bool isFillEnable = true;
-        for (int x = startX; x < endX; ++x)
+        for (int x = 0; x < blockData.width; ++x)
         {
-            for (int y = startY; y < endY; ++y)
+            for (int y = 0; y < blockData.height; ++y)
             {
-                var tmpMapIndex = y * __width + x;
+                if (blockData.dataArray[x + y * blockData.width] == 0)
+                    continue;
+
+                var tmpMapIndex = (y+startY) * __width + x+startX;
                 if (__mapData[tmpMapIndex].value != GRID_EMPTY)
                 {
                     isFillEnable = false;
