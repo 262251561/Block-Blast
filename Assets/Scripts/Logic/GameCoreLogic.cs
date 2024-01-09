@@ -55,6 +55,7 @@ public class GameCoreLogic
 
     public Action lineRoundChangedEvent;
 
+    private int __round;
     private int __width;
     private int __height;
 
@@ -106,13 +107,48 @@ public class GameCoreLogic
         __mapData = new MapGridState[length];
         for (i = 0; i < length; ++i)
             __mapData[i] = new MapGridState { value = GRID_EMPTY };
+
+        __round = 0;
+    }
+
+    int __TryGetFilledBlockIndex()
+    {
+        int end = GameDataMeta.s_Instance.blockConfigArray.Length;
+        while(true)
+        {
+            if (end == 0)
+                return 0;
+
+            int configIndex = UnityEngine.Random.Range(0, end);
+            if (__CanFillBlockWithConfigIndex(configIndex))
+                return configIndex;
+
+            end >>= 1;
+        }
+    }
+
+    int __GetBlockIndex(int lineIndex)
+    {
+        var gameMeta = GameDataMeta.s_Instance;
+        switch(lineIndex)
+        {
+            case 0:
+                return __TryGetFilledBlockIndex();
+            case 1:
+                return __round< 10 ? UnityEngine.Random.Range(0, gameMeta.blockConfigArray.Length) :  __TryGetFilledBlockIndex();
+            default:
+                return UnityEngine.Random.Range(0, gameMeta.blockConfigArray.Length);
+        }
     }
 
     public void RefreshLineRound()
     {
-        var gameMeta = GameDataMeta.s_Instance;
+        ++__round;
+
         for (int i = 0; i < RoundState.MAX_COUNT; ++i)
-            currentRoungData.lineNodes[i] = new BlockNode { index = UnityEngine.Random.Range(0, gameMeta.blockConfigArray.Length) };
+        {
+            currentRoungData.lineNodes[i] = new BlockNode { index = __GetBlockIndex(i) };
+        }
 
         lineRoundChangedEvent?.Invoke();
     }
@@ -209,14 +245,10 @@ public class GameCoreLogic
         }
     }
 
-    bool __CheckPushGrid(
-        int index,
-        int mapIndex)
+    bool __CheckPushGridByConfigIndex(int configIndex, int mapIndex)
     {
         var gameDataMeta = GameDataMeta.s_Instance;
-
-        var currentData = currentRoungData.lineNodes[index];
-        var blockData = gameDataMeta.blockConfigArray[currentData.index];
+        var blockData = gameDataMeta.blockConfigArray[configIndex];
 
         int startX = mapIndex % __width;
         int startY = mapIndex / __width;
@@ -233,7 +265,7 @@ public class GameCoreLogic
                 if (blockData.dataArray[x + y * blockData.width] == 0)
                     continue;
 
-                var tmpMapIndex = (y+startY) * __width + x+startX;
+                var tmpMapIndex = (y + startY) * __width + x + startX;
                 if (__mapData[tmpMapIndex].value != GRID_EMPTY)
                 {
                     return false;
@@ -242,6 +274,13 @@ public class GameCoreLogic
         }
 
         return true;
+    }
+
+    bool __CheckPushGrid(
+        int index,
+        int mapIndex)
+    {
+        return __CheckPushGrid(currentRoungData.lineNodes[index].index, mapIndex);
     }
 
     bool __TryPushGrid(
@@ -346,12 +385,12 @@ public class GameCoreLogic
         return true;
     }
 
-    public void CheckPush(int index, int mapIndex, List<int> highLightGrids)
+    public bool CheckPush(int index, int mapIndex, List<int> highLightGrids)
     {
         highLightGrids.Clear();
 
         __checkHandler.highLightGrids = highLightGrids;
-        __TryPushGrid(index, mapIndex, true, __checkHandler);
+        return __TryPushGrid(index, mapIndex, true, __checkHandler);
     }
 
     public void SetMapUserData(int mapIndex, object userData)
@@ -428,27 +467,14 @@ public class GameCoreLogic
 
         if (emptyCount > 0)
         {
-            //遍历所有的空格子，尝试放进去
             bool anySuccess = false;
-            int length = __width, j, height = __height, k;
-            for (i = 0; i < length; ++i)
+            for(i=0; i<emptyCount; ++i)
             {
-                for (j = 0; j < height; ++j)
+                if(__CanFillBlockWithLineIndex(noneEmptyIndices[i]))
                 {
-                    for (k = 0; k < emptyCount; ++k)
-                    {
-                        if (__CheckPushGrid(noneEmptyIndices[k], j * __width + i))
-                        {
-                            anySuccess = true;
-                        }
-                    }
-
-                    if (anySuccess)
-                        break;
-                }
-
-                if (anySuccess)
+                    anySuccess = true;
                     break;
+                }
             }
 
             if (!anySuccess)
@@ -457,5 +483,29 @@ public class GameCoreLogic
 
         //如果没结束，检测是否为最后一道
         return GameState.RUNNING;
+    }
+
+    bool __CanFillBlockWithLineIndex(int lineIndex)
+    {
+        return __CanFillBlockWithConfigIndex(currentRoungData.lineNodes[lineIndex].index);
+    }
+
+    bool __CanFillBlockWithConfigIndex(int configIndex)
+    {
+        //遍历所有的空格子，尝试放进去
+        int i, j;
+        for (i = 0; i < __width; ++i)
+        {
+            for (j = 0; j < __height; ++j)
+            {
+                if (__mapData[j * __width + i].value != GRID_EMPTY)
+                    continue;
+
+                if (__CheckPushGridByConfigIndex(configIndex, j * __width + i))
+                    return true;
+            }
+        }
+
+        return false;
     }
 }

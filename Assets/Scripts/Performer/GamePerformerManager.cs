@@ -10,7 +10,7 @@ using UnityEngine.EventSystems;
 
 public class GamePerformerManager : MonoBehaviour
 {
-    private class InputManager : BlockSprite.IInput
+    private class InputManager : BlockSpritePosHandler.IInput
     {
         private Vector3 __sourcePos;
         private Transform __sourceParent;
@@ -23,7 +23,7 @@ public class GamePerformerManager : MonoBehaviour
             __hightLights = new List<int>();
         }
 
-        public void OnBeginDrag(BlockSprite bs, PointerEventData eventData)
+        public void OnBeginDrag(BlockSprite bs, Vector2 pos)
         {
             if (__owner.__currentState != GameCoreLogic.GameState.RUNNING)
                 return;
@@ -32,29 +32,41 @@ public class GamePerformerManager : MonoBehaviour
             __sourcePos = srcPos;
             __targetZ = Camera.main.transform.position.z + Camera.main.nearClipPlane + 0.001f;
             srcPos.z = __targetZ;
+            srcPos.y += __owner.YOffset;
             __sourceParent = bs.transform.parent;
             bs.transform.position = srcPos;
             bs.transform.SetParent(null);
             bs.transform.localScale = Vector3.one;
         }
 
-        public void OnDrag(BlockSprite bs, PointerEventData eventData)
+        public void OnDrag(BlockSprite bs, Vector2 pos)
         {
             if (__owner.__currentState != GameCoreLogic.GameState.RUNNING)
                 return;
 
-            var worldPos  = Camera.main.ScreenToWorldPoint(eventData.position);
+            var worldPos  = Camera.main.ScreenToWorldPoint(pos);
             worldPos.z = __targetZ;
+            worldPos.y += __owner.YOffset;
             bs.transform.position = worldPos;
 
             int mapIndex = GetMapIndex(bs.GetLeftBottomCornerPosition(__owner.gridSize));
 
-            //Debug.LogError( (mapIndex % GameDataMeta.s_Instance.mapWidth) + " " + (mapIndex / GameDataMeta.s_Instance.mapWidth) );
             if (mapIndex == -1)
                 return;
 
             __hightLights.Clear();
-            __owner.__coreLogic.CheckPush(bs.ownerIndex, mapIndex, __hightLights);
+            bool isFilled = __owner.__coreLogic.CheckPush(bs.ownerIndex, mapIndex, __hightLights);
+            if(isFilled)
+            {
+                if (__hightLights.Count > 0)
+                {
+
+                }
+                else
+                {
+
+                }
+            }
         }
 
         int GetMapIndex(Vector3 pos)
@@ -92,11 +104,11 @@ public class GamePerformerManager : MonoBehaviour
             bs.transform.localScale = Vector3.one;
         }
 
-        public void OnEndDrag(BlockSprite bs, PointerEventData eventData)
+        public void OnEndDrag(BlockSprite bs, Vector2 pos)
         {
             if (__owner.__currentState != GameCoreLogic.GameState.RUNNING)
                 return;
-
+            
             int mapIndex = GetMapIndex(bs.GetLeftBottomCornerPosition(__owner.gridSize));
 
             if(mapIndex != -1)
@@ -116,7 +128,7 @@ public class GamePerformerManager : MonoBehaviour
                     //push to grid
                     int startX = mapIndex % gameMeta.mapWidth;
                     int startY = mapIndex / gameMeta.mapWidth;
-
+                    int childIndex = 0;
                     for (int x = 0; x < blockData.width; ++x)
                     {
                         for (int y = 0; y < blockData.height; ++y)
@@ -126,6 +138,7 @@ public class GamePerformerManager : MonoBehaviour
 
                             int tmpMapIndex = x+startX + (y+startY) * gameMeta.mapWidth;
                             var gridSprite = __owner.__AllocateGridSprite();
+                            gridSprite.ApplySprite(bs.GetChildSpriteRender(childIndex++).sprite);
                             gridSprite.transform.SetParent(__owner.gridRoot, false);
                             gridSprite.transform.localPosition = ComputePosition(x + startX, y + startY, 0.0f);
                             __owner.__coreLogic.SetMapUserData(tmpMapIndex, gridSprite);
@@ -174,6 +187,8 @@ public class GamePerformerManager : MonoBehaviour
 
     public float gridSize;
 
+    public float YOffset;
+
     public Transform gridRoot;
     public Transform blockRoot;
 
@@ -184,6 +199,7 @@ public class GamePerformerManager : MonoBehaviour
     private Stack<BlockSprite> __blockSpritePool;
     private Stack<GridSprite> __gridSpritePool;
 
+    private BlockSpritePosHandler[] __spritePosHandlers;
     private GameCoreLogic.GameState __currentState;
 
     private GameCoreLogic __coreLogic;
@@ -203,12 +219,10 @@ public class GamePerformerManager : MonoBehaviour
                 spPrefab,
                 sprites[UnityEngine.Random.Range(0, sprites.Length)], 
                 gridSize, 
-                __inputManager, 
                 i,
                 gameMeta.blockConfigArray[node.index]);
 
-            bs.transform.SetParent(blockRoot.transform.GetChild(i), false);
-            bs.transform.localPosition = Vector3.zero;
+            __spritePosHandlers[i].SetAttachedSprite(bs);
         }
     }
 
@@ -263,6 +277,15 @@ public class GamePerformerManager : MonoBehaviour
 
         __coreLogic = coreLogic;
         __coreLogic.lineRoundChangedEvent += OnLineRoundChanged;
+
+        __spritePosHandlers = new BlockSpritePosHandler[blockRoot.childCount];
+        for (int i = 0; i < blockRoot.childCount; ++i)
+        {
+            var posHandler = blockRoot.GetChild(i).GetComponent<BlockSpritePosHandler>();
+            posHandler.ApplyInput(__inputManager);
+
+            __spritePosHandlers[i] = posHandler;
+        }
 
         //此处可以播放一些入场动画
         yield return null;

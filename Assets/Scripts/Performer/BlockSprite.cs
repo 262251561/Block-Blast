@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class BlockSprite : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+public class BlockSprite : MonoBehaviour
 {
     public static void FreeSPPool()
     {
@@ -47,15 +47,8 @@ public class BlockSprite : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         s_SpPool.Push(sp);
     }
 
-    public interface IInput
-    {
-        void OnBeginDrag(BlockSprite bs, PointerEventData eventData);
-        void OnDrag(BlockSprite bs, PointerEventData eventData);
-        void OnEndDrag(BlockSprite bs, PointerEventData eventData);
-    }
-
-    private IInput __input;
-    private BoxCollider2D __collider2D;
+    private Vector2 __localSize;
+    private List<SpriteRenderer> __spriteRenderers;
 
     [HideInInspector]
     public int ownerIndex;
@@ -63,32 +56,36 @@ public class BlockSprite : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private void Awake()
     {
         ownerIndex = -1;
-        __collider2D = gameObject.GetComponent<BoxCollider2D>();
+        __spriteRenderers = new List<SpriteRenderer>();
     }
 
-    static private List<Transform> s_TempFree = new List<Transform>();
+    public SpriteRenderer GetChildSpriteRender(int index)
+    {
+        return __spriteRenderers[index];
+    }
+
     public void Free(Transform freeRoot)
     {
-        s_TempFree.Clear();
-        for (int i = 0; i < transform.childCount; ++i)
-            s_TempFree.Add(transform.GetChild(i));
+        int i, length = __spriteRenderers.Count;
+        for(i=0; i< length; ++i)
+            __FreeSP(freeRoot, __spriteRenderers[i]);
 
-        for(int i=0; i<s_TempFree.Count; ++i)
-            __FreeSP(freeRoot, s_TempFree[i].gameObject.GetComponent<SpriteRenderer>());
+        __spriteRenderers.Clear();
 
         gameObject.SetActive(false);
     }
-
+    
     public void ApplyBlock(
         SpriteRenderer spPrefab,
         Sprite sprite, 
         float gridSize,
-        IInput inputHandler,
         int index, 
         GameDataMeta.BlockData blockData)
     {
         ownerIndex = index;
-        __input = inputHandler;
+
+        if(__spriteRenderers.Count > 0)
+            __spriteRenderers.Clear();
 
         float halfGridSize = gridSize * 0.5f;
         var localSize = new Vector2(blockData.width * gridSize, blockData.height * gridSize);
@@ -106,16 +103,18 @@ public class BlockSprite : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 localPos.x -= halfLocalSize.x;
                 localPos.y -= halfLocalSize.y;
                 spNode.transform.localPosition = localPos;
+
+                __spriteRenderers.Add(spNode);
             }
         }
 
-        __collider2D.size = localSize;
+        __localSize = localSize;
     }
 
     public Vector3 GetLeftBottomCornerPosition(float gridSize)
     {
         var pos = transform.position;
-        var halfSize = __collider2D.size * 0.5f;
+        var halfSize = __localSize * 0.5f;
         var halfGridSize = gridSize * 0.5f;
         pos.x -= halfSize.x;
         pos.y -= halfSize.y;
@@ -124,23 +123,5 @@ public class BlockSprite : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         pos.y += halfGridSize;
 
         return pos;
-    }
-
-    public void OnBeginDrag(PointerEventData eventData)
-    {
-        if (__input != null)
-            __input.OnBeginDrag(this, eventData);
-    }
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (__input != null)
-            __input.OnDrag(this, eventData);
-    }
-
-    public void OnEndDrag(PointerEventData eventData)
-    {
-        if (__input != null)
-            __input.OnEndDrag(this, eventData);
     }
 }
