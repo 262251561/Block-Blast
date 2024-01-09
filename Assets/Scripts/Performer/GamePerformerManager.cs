@@ -25,6 +25,9 @@ public class GamePerformerManager : MonoBehaviour
 
         public void OnBeginDrag(BlockSprite bs, PointerEventData eventData)
         {
+            if (__owner.__currentState != GameCoreLogic.GameState.RUNNING)
+                return;
+
             var srcPos = bs.transform.position;
             __sourcePos = srcPos;
             __targetZ = Camera.main.transform.position.z + Camera.main.nearClipPlane + 0.001f;
@@ -37,6 +40,9 @@ public class GamePerformerManager : MonoBehaviour
 
         public void OnDrag(BlockSprite bs, PointerEventData eventData)
         {
+            if (__owner.__currentState != GameCoreLogic.GameState.RUNNING)
+                return;
+
             var worldPos  = Camera.main.ScreenToWorldPoint(eventData.position);
             worldPos.z = __targetZ;
             bs.transform.position = worldPos;
@@ -88,6 +94,9 @@ public class GamePerformerManager : MonoBehaviour
 
         public void OnEndDrag(BlockSprite bs, PointerEventData eventData)
         {
+            if (__owner.__currentState != GameCoreLogic.GameState.RUNNING)
+                return;
+
             int mapIndex = GetMapIndex(bs.GetLeftBottomCornerPosition(__owner.gridSize));
 
             if(mapIndex != -1)
@@ -95,7 +104,7 @@ public class GamePerformerManager : MonoBehaviour
                 var gameMeta = GameDataMeta.s_Instance;
                 var blockData = gameMeta.blockConfigArray[__owner.__coreLogic.currentRoungData.lineNodes[bs.ownerIndex].index];
 
-                var gameState = __owner.__coreLogic.PushStep(
+                __owner.__currentState = __owner.__coreLogic.PushStep(
                     bs.ownerIndex, 
                     mapIndex, 
                     __hightLights, 
@@ -140,6 +149,15 @@ public class GamePerformerManager : MonoBehaviour
 
                     if (isRefreshEnable)
                         __owner.__coreLogic.RefreshLineRound();
+
+                    switch(__owner.__currentState)
+                    {
+                        case GameCoreLogic.GameState.FAIL:
+                            __owner.uiFailWindow.gameObject.SetActive(true);
+                            break;
+                        case GameCoreLogic.GameState.SUCCESS:
+                            break;
+                    }
                 }
                 else
                     __RestoreBS(bs);
@@ -159,10 +177,14 @@ public class GamePerformerManager : MonoBehaviour
     public Transform gridRoot;
     public Transform blockRoot;
 
+    public RectTransform uiSuccessWindow;
+    public RectTransform uiFailWindow;
+
     private InputManager __inputManager;
     private Stack<BlockSprite> __blockSpritePool;
     private Stack<GridSprite> __gridSpritePool;
 
+    private GameCoreLogic.GameState __currentState;
 
     private GameCoreLogic __coreLogic;
 

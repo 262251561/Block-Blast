@@ -18,9 +18,10 @@ public class UIGameMain : UIBase
 
     private void LateUpdate()
     {
-        if (GameSceneLogic.s_Instance == null || GameSceneLogic.s_Instance.coreLogic == null)
+        var sceneLogic = GameSceneLogic.s_Instance;
+        if (sceneLogic == null || sceneLogic.coreLogic == null)
             return;
 
-        __uiScoreShow.text = IntStringMap.instance.GetInt(GameSceneLogic.s_Instance.coreLogic.score);
+        __uiScoreShow.text = IntStringMap.instance.GetInt(sceneLogic.coreLogic.score);
     }
 }
