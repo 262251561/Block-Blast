@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: BlockArt
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: b2d8200c3082ad9499fde4c2fa5f1efc, type: 3}
+    totalSpriteSurfaceArea: 2645160
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: bf837a70bf01ab343bf63bd46c90a27e, type: 3}
+  - {fileID: 21300000, guid: 76e0bd01a8a65574f93b209f1f224934, type: 3}
+  - {fileID: 21300000, guid: abcb0b125632d2f4bac9ca5456419830, type: 3}
+  - {fileID: 21300000, guid: 34dd69524b4ea0e499fe8497a00da7ab, type: 3}
+  - {fileID: 21300000, guid: c89659f2245decc4db2e6672f0f7a0ca, type: 3}
+  - {fileID: 21300000, guid: b00cb284567155847850b25f2d0e0a0d, type: 3}
+  - {fileID: 21300000, guid: f49c9894d1988db4583906e781813ea9, type: 3}
+  - {fileID: 21300000, guid: aeab841580346844585dd67ba82665b6, type: 3}
+  - {fileID: 21300000, guid: c6980dd5993950f42975e0b09168dd82, type: 3}
+  - {fileID: 21300000, guid: b1acbdf5434e38b46967b00907081530, type: 3}
+  - {fileID: 21300000, guid: 3dd694b6c4fbe7a40a283fa8c2c1dd34, type: 3}
+  - {fileID: 21300000, guid: 1beb1dd9629b978468a3dff78882a2f5, type: 3}
+  - {fileID: 21300000, guid: 922efb7ad468e754cbdeb4fe470dd08e, type: 3}
+  - {fileID: 21300000, guid: e6057f8a114fa4d4d85379ac4a1337c3, type: 3}
+  - {fileID: 21300000, guid: 7289598bf71e2cb48af5c1667e4c0d9f, type: 3}
+  - {fileID: 21300000, guid: e8b2f25d9190477468b1fb59038706e6, type: 3}
+  - {fileID: 21300000, guid: 801203fde3df88e47b850eaf6ff2c2cc, type: 3}
+  - {fileID: 21300000, guid: 90e10d2f7daf53b498e3fcc66b854e14, type: 3}
+  - {fileID: 21300000, guid: f3abbfaff462f284f962059cc1bdb63b, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - g_c
+  - c
+  - g_lan
+  - g_dz
+  - g_h
+  - g_lv
+  - b
+  - grid_bg
+  - g_huang
+  - g_z
+  - BlockBG_Bottom
+  - g_f
+  - y
+  - BlockBGSpaceBottom
+  - BlockBG
+  - g_q
+  - diban
+  - q
+  - BlockBG_Up
+  m_RenderDataMap: {}
+  m_Tag: BlockArt
+  m_IsVariant: 0
