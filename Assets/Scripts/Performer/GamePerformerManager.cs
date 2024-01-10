@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using TH;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -16,11 +16,14 @@ public class GamePerformerManager : MonoBehaviour
         private Transform __sourceParent;
         private float __targetZ;
         private List<int> __hightLights;
+
+        private BlockDragGhostLogic __ghostDragLogic;
         private GamePerformerManager __owner;
         public InputManager(GamePerformerManager owner)
         {
             __owner = owner;
             __hightLights = new List<int>();
+            __ghostDragLogic = new BlockDragGhostLogic(owner, owner.__coreLogic);
         }
 
         public void OnBeginDrag(BlockSprite bs, Vector2 pos)
@@ -37,6 +40,8 @@ public class GamePerformerManager : MonoBehaviour
             bs.transform.position = srcPos;
             bs.transform.SetParent(null);
             bs.transform.localScale = Vector3.one;
+
+            __ghostDragLogic.OnBeginDrag(bs);
         }
 
         public void OnDrag(BlockSprite bs, Vector2 pos)
@@ -51,22 +56,18 @@ public class GamePerformerManager : MonoBehaviour
 
             int mapIndex = GetMapIndex(bs.GetLeftBottomCornerPosition(__owner.gridSize));
 
-            if (mapIndex == -1)
-                return;
-
             __hightLights.Clear();
-            bool isFilled = __owner.__coreLogic.CheckPush(bs.ownerIndex, mapIndex, __hightLights);
-            if(isFilled)
+            if (mapIndex == -1)
             {
-                if (__hightLights.Count > 0)
-                {
-
-                }
-                else
-                {
-
-                }
+                __ghostDragLogic.OnDrag(bs, -1, false, __hightLights);
+                return;
             }
+
+            __ghostDragLogic.OnDrag(
+                bs, 
+                mapIndex,
+                __owner.__coreLogic.CheckPush(bs.ownerIndex, mapIndex, __hightLights), 
+                __hightLights);
         }
 
         int GetMapIndex(Vector3 pos)
@@ -84,18 +85,6 @@ public class GamePerformerManager : MonoBehaviour
             return Mathf.RoundToInt(gridPos.y / __owner.gridSize ) * gameMeta.mapWidth + Mathf.RoundToInt(gridPos.x / __owner.gridSize);
         }
 
-        Vector3 ComputePosition(int x, int y, float z)
-        {
-            float halfGridSize = __owner.gridSize * 0.5f;
-            var vecPos = new Vector3(x * __owner.gridSize + halfGridSize, y * __owner.gridSize + halfGridSize, z);
-
-            var gameMeta = GameDataMeta.s_Instance;
-            var halfScene = new Vector2((gameMeta.mapWidth >> 1) * __owner.gridSize, (gameMeta.mapHeight >> 1) * __owner.gridSize);
-            vecPos.x -= halfScene.x;
-            vecPos.y -= halfScene.y;
-
-            return vecPos;
-        }
 
         void __RestoreBS(BlockSprite bs)
         {
@@ -108,9 +97,10 @@ public class GamePerformerManager : MonoBehaviour
         {
             if (__owner.__currentState != GameCoreLogic.GameState.RUNNING)
                 return;
-            
-            int mapIndex = GetMapIndex(bs.GetLeftBottomCornerPosition(__owner.gridSize));
 
+            __ghostDragLogic.OnEndDrag(bs);
+
+            int mapIndex = GetMapIndex(bs.GetLeftBottomCornerPosition(__owner.gridSize));
             if(mapIndex != -1)
             {
                 var gameMeta = GameDataMeta.s_Instance;
@@ -137,25 +127,29 @@ public class GamePerformerManager : MonoBehaviour
                                 continue;
 
                             int tmpMapIndex = x+startX + (y+startY) * gameMeta.mapWidth;
-                            var gridSprite = __owner.__AllocateGridSprite();
+                            var gridSprite = __owner.AllocateGridSprite();
                             gridSprite.ApplySprite(bs.GetChildSpriteRender(childIndex++).sprite);
                             gridSprite.transform.SetParent(__owner.gridRoot, false);
-                            gridSprite.transform.localPosition = ComputePosition(x + startX, y + startY, 0.0f);
+                            gridSprite.transform.localPosition = __owner.ComputePosition(x + startX, y + startY, 0.0f);
                             __owner.__coreLogic.SetMapUserData(tmpMapIndex, gridSprite);
                         }
                     }
 
                     //消失
+                    GridSpriteHideLogic hideLogic = ObjectPool<GridSpriteHideLogic>.s_instance.Allocate();
+                    hideLogic.Refresh(__owner);
                     int i, length = __hightLights.Count;
                     for (i = 0; i < length; ++i)
                     {
                         var node = __owner.__coreLogic.GetMapUserData(__hightLights[i]) as GridSprite;
                         if (node != null)
                         {
-                            __owner.__FreeGridSprite(node);
+                            hideLogic.AddSprite(node);
                             __owner.__coreLogic.SetMapUserData(__hightLights[i], null);
                         }
                     }
+
+                    CoroutineQueuePool.s_Instance.PushRun(hideLogic);
 
                     //释放自己
                     __owner.__FreeBlockSprite(bs);
@@ -187,7 +181,11 @@ public class GamePerformerManager : MonoBehaviour
 
     public float gridSize;
 
+    public float ghostAlpha;
     public float YOffset;
+    public float hideAnimTime;
+
+    public Sprite hightLightSprite;
 
     public Transform gridRoot;
     public Transform blockRoot;
@@ -226,7 +224,20 @@ public class GamePerformerManager : MonoBehaviour
         }
     }
 
-    GridSprite __AllocateGridSprite()
+    public Vector3 ComputePosition(int x, int y, float z)
+    {
+        float halfGridSize = gridSize * 0.5f;
+        var vecPos = new Vector3(x * gridSize + halfGridSize, y * gridSize + halfGridSize, z);
+
+        var gameMeta = GameDataMeta.s_Instance;
+        var halfScene = new Vector2((gameMeta.mapWidth >> 1) * gridSize, (gameMeta.mapHeight >> 1) * gridSize);
+        vecPos.x -= halfScene.x;
+        vecPos.y -= halfScene.y;
+
+        return vecPos;
+    }
+
+    public GridSprite AllocateGridSprite()
     {
         GridSprite bs = null;
         if (__gridSpritePool.Count > 0)
@@ -240,7 +251,7 @@ public class GamePerformerManager : MonoBehaviour
         return bs;
     }
 
-    void __FreeGridSprite(GridSprite gs)
+    public void FreeGridSprite(GridSprite gs)
     {
         gs.gameObject.SetActive(false);
         gs.transform.SetParent(gridRoot.transform, false);
@@ -270,13 +281,13 @@ public class GamePerformerManager : MonoBehaviour
 
     public IEnumerator Init(GameCoreLogic coreLogic)
     {
-        __inputManager = new InputManager(this);
-
         __blockSpritePool = new Stack<BlockSprite>();
         __gridSpritePool = new Stack<GridSprite>();
 
         __coreLogic = coreLogic;
         __coreLogic.lineRoundChangedEvent += OnLineRoundChanged;
+
+        __inputManager = new InputManager(this);
 
         __spritePosHandlers = new BlockSpritePosHandler[blockRoot.childCount];
         for (int i = 0; i < blockRoot.childCount; ++i)

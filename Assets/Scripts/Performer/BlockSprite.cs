@@ -59,6 +59,11 @@ public class BlockSprite : MonoBehaviour
         __spriteRenderers = new List<SpriteRenderer>();
     }
 
+    public int GetChildSpriteRenderCount()
+    {
+        return __spriteRenderers.Count;
+    }
+
     public SpriteRenderer GetChildSpriteRender(int index)
     {
         return __spriteRenderers[index];

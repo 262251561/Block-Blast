@@ -1,0 +1,21 @@
+{
+    "name": "TH.Editor",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Addressables",
+        "Unity.Mathematics",
+        "Unity.Collections",
+        "TH"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

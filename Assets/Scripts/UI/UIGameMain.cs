@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using TH;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,6 +22,6 @@ public class UIGameMain : UIBase
         if (sceneLogic == null || sceneLogic.coreLogic == null)
             return;
 
-        __uiScoreShow.text = IntStringMap.instance.GetInt(sceneLogic.coreLogic.score);
+        __uiScoreShow.text = IntToStringMap.instance.GetCacheString(sceneLogic.coreLogic.score);
     }
 }
