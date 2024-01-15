@@ -62,6 +62,7 @@ public class BlockDragGhostLogic
                 var gpSprite = __coreLogic.GetMapUserData(__hightLightSprites[i]) as GridSprite;
                 gpSprite.RestoreSprite();
             }
+            __hightLightSprites.Clear();
 
             if (hightLights.Count > 0)
             {

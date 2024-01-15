@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIFailWindow : UIBase
+public class UIReplayWindow : UIBase
 {
     private void Start()
     {

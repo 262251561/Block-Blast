@@ -190,7 +190,6 @@ public class GamePerformerManager : MonoBehaviour
     public Transform gridRoot;
     public Transform blockRoot;
 
-    public RectTransform uiSuccessWindow;
     public RectTransform uiFailWindow;
 
     private InputManager __inputManager;

@@ -32,15 +32,25 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 3bcef57f676f6224da6fd3f784fb252b, type: 3}
-    totalSpriteSurfaceArea: 2073600
+    totalSpriteSurfaceArea: 42836
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 5f5f71bfb2b159546aea4d428d689c75, type: 3}
+  - {fileID: 21300000, guid: 899fcdf33292a7c43996a9f59e2e88a6, type: 3}
+  - {fileID: 21300000, guid: b075801908e8a354fbe1006027ead25d, type: 3}
+  - {fileID: 21300000, guid: 0b1dfbeb7e282d54e84deef2bd704fbd, type: 3}
+  - {fileID: 21300000, guid: 086dd76c9f985a54b8575207e49c5986, type: 3}
+  - {fileID: 21300000, guid: 5588abed6ad9f224faeaf39d727347fe, type: 3}
+  - {fileID: 21300000, guid: c5d2033f996bd8a41bbe22b9450bfcbe, type: 3}
   m_PackedSpriteNamesToIndex:
-  - MainBG
+  - login_bg
+  - login_btn_bg
+  - gongneng_zhanghao
+  - gongneng_settings
+  - login_gongneng_btn_bg
+  - gongneng_score
   m_RenderDataMap: {}
   m_Tag: LoginArt
   m_IsVariant: 0
