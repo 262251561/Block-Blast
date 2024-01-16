@@ -60,14 +60,15 @@ public class BlockDragGhostLogic
             for(i=0; i<length; ++i)
             {
                 var gpSprite = __coreLogic.GetMapUserData(__hightLightSprites[i]) as GridSprite;
+                if (gpSprite == null)
+                    continue;
+
                 gpSprite.RestoreSprite();
             }
             __hightLightSprites.Clear();
 
             if (hightLights.Count > 0)
             {
-                __SetGhostActive(false);
-
                 //receive hightlights
                 length = hightLights.Count;
                 for(i=0; i<length; ++i)
@@ -76,37 +77,35 @@ public class BlockDragGhostLogic
                     if (gpSprite == null)
                         continue;
 
-                    gpSprite.ApplyTempSprite(__performerManager.hightLightSprite);
+                    gpSprite.ApplyTempSprite(bs.GetChildSpriteRender(0).sprite);
                     __hightLightSprites.Add(hightLights[i]);
                 }
             }
-            else 
+
+            if (isFilledOK)
             {
-                if (isFilledOK)
+                var gameMeta = GameDataMeta.s_Instance;
+                var blockData = gameMeta.blockConfigArray[__coreLogic.currentRoungData.lineNodes[bs.ownerIndex].index];
+
+                int startX = mapIndex % gameMeta.mapWidth;
+                int startY = mapIndex / gameMeta.mapWidth;
+                int childIndex = 0;
+                for (int x = 0; x < blockData.width; ++x)
                 {
-                    var gameMeta = GameDataMeta.s_Instance;
-                    var blockData = gameMeta.blockConfigArray[__coreLogic.currentRoungData.lineNodes[bs.ownerIndex].index];
-
-                    int startX = mapIndex % gameMeta.mapWidth;
-                    int startY = mapIndex / gameMeta.mapWidth;
-                    int childIndex = 0;
-                    for (int x = 0; x < blockData.width; ++x)
+                    for (int y = 0; y < blockData.height; ++y)
                     {
-                        for (int y = 0; y < blockData.height; ++y)
-                        {
-                            if (blockData.dataArray[y * blockData.width + x] == 0)
-                                continue;
+                        if (blockData.dataArray[y * blockData.width + x] == 0)
+                            continue;
 
-                            var gridSprite = __ghostGridSprites[childIndex++];
-                            gridSprite.transform.localPosition = __performerManager.ComputePosition(x + startX, y + startY, 0.0f);
-                            gridSprite.gameObject.SetActive(true);
-                            gridSprite.ApplyAlpha(0.3f);
-                        }
+                        var gridSprite = __ghostGridSprites[childIndex++];
+                        gridSprite.transform.localPosition = __performerManager.ComputePosition(x + startX, y + startY, 0.0f);
+                        gridSprite.gameObject.SetActive(true);
+                        gridSprite.ApplyAlpha(0.3f);
                     }
                 }
-                else
-                    __SetGhostActive(false);
             }
+            else
+                __SetGhostActive(false);
 
             __lastMapIndex = mapIndex;
         }

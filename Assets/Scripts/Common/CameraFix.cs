@@ -10,9 +10,13 @@ public class CameraFix : MonoBehaviour
 {
     private void Start()
     {
-        float width = UICanvasConfig.s_Instance.canvasWidth;
-        float height = UICanvasConfig.s_Instance.canvasHeight;
+        //var camera = gameObject.GetComponent<Camera>();
+        //var currentVSize = camera.orthographicSize;
+        //var currentHSize = camera.aspect * currentVSize;
 
-        gameObject.GetComponent<Camera>().aspect = width / height;
+        //float width = UICanvasConfig.s_Instance.canvasWidth;
+        //float height = UICanvasConfig.s_Instance.canvasHeight;
+
+        //camera.orthographicSize = currentHSize;
     }
 }
