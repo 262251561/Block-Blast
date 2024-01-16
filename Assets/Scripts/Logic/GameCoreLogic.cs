@@ -59,6 +59,21 @@ public class GameCoreLogic
         void OnCombineVerLine(int x, int startX, int endX);
     }
 
+    private class CheckCounterHandler : IPushGridHandler
+    {
+        public int counter;
+
+        public void OnCombineHorLine(int y, int startX, int endX)
+        {
+            ++counter;
+        }
+
+        public void OnCombineVerLine(int x, int startY, int endY)
+        {
+            ++counter;
+        }
+    }
+
     private class CheckPushHandler : IPushGridHandler
     {
         public GameCoreLogic owner;
@@ -135,6 +150,7 @@ public class GameCoreLogic
     }
 
     public Action lineRoundChangedEvent;
+    public Action scoreChangedEvent;
 
     private int __round;
     private int __width;
@@ -163,6 +179,7 @@ public class GameCoreLogic
 
     private CheckPushHandler __checkHandler;
     private PushGridHandler __pushHandler;
+    private CheckCounterHandler __counterHandler;
 
     private List<int> __fillStack;
 
@@ -174,6 +191,8 @@ public class GameCoreLogic
 
         __pushHandler = new PushGridHandler();
         __pushHandler.owner = this;
+
+        __counterHandler = new CheckCounterHandler();
         currentRoungData = new RoundState();
     }
 
@@ -208,32 +227,49 @@ public class GameCoreLogic
         }
     }
 
-    int __TryGetCrushBlockIndex()
+    bool __CanCrushWithConfigIndex(int configIndex)
     {
+        //遍历所有的空格子，尝试放进去
+        int i, j;
+        for (i = 0; i < __width; ++i)
+        {
+            for (j = 0; j < __height; ++j)
+            {
+                int mapIndex = j * __width + i;
+                if (__mapData[mapIndex].value != GRID_EMPTY)
+                    continue;
 
+                __counterHandler.counter = 0;
+                __TryPushGridWithConfigIndex(
+                    configIndex, 
+                    mapIndex, 
+                    true, 
+                    __counterHandler);
+
+                if (__counterHandler.counter > 0)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
-    int __GetBlockIndex(int lineIndex)
+    int __GetBlockIndex()
     {
         var gameMeta = GameDataMeta.s_Instance;
-        //尽量刷出可以消除的
         if(__round <= 10)
         {
+            int i, length = gameMeta.blockConfigArray.Length;
+            for(i=0; i<length; ++i)
+            {
+                if(__CanCrushWithConfigIndex(i))
+                {
+                    return i;
+                }
+            }
+        }
 
-        }
-        else
-        {
-            //刷出可放下的
-        }
-        switch(lineIndex)
-        {
-            case 0:
-                return __TryGetFilledBlockIndex();
-            case 1:
-                return __round< 10 ? UnityEngine.Random.Range(0, gameMeta.blockConfigArray.Length) :  __TryGetFilledBlockIndex();
-            default:
-                return UnityEngine.Random.Range(0, gameMeta.blockConfigArray.Length);
-        }
+        return __TryGetFilledBlockIndex();
     }
 
     public void RefreshLineRound()
@@ -242,7 +278,7 @@ public class GameCoreLogic
 
         for (int i = 0; i < RoundState.MAX_COUNT; ++i)
         {
-            currentRoungData.lineNodes[i] = new BlockNode { index = __GetBlockIndex(i) };
+            currentRoungData.lineNodes[i] = new BlockNode { index = __GetBlockIndex() };
         }
 
         lineRoundChangedEvent?.Invoke();
@@ -286,16 +322,14 @@ public class GameCoreLogic
         return __CheckPushGrid(currentRoungData.lineNodes[index].index, mapIndex);
     }
 
-    bool __TryPushGrid(
-        int index, 
-        int mapIndex, 
-        bool isEndRevert, 
+    bool __TryPushGridWithConfigIndex(
+        int configIndex,
+        int mapIndex,
+        bool isEndRevert,
         IPushGridHandler handler)
     {
         var gameDataMeta = GameDataMeta.s_Instance;
-
-        var currentData = currentRoungData.lineNodes[index];
-        var blockData = gameDataMeta.blockConfigArray[currentData.index];
+        var blockData = gameDataMeta.blockConfigArray[configIndex];
 
         int startX = mapIndex % __width;
         int startY = mapIndex / __width;
@@ -315,7 +349,7 @@ public class GameCoreLogic
                 if (blockData.dataArray[x + y * blockData.width] == 0)
                     continue;
 
-                var tmpMapIndex = (y+startY) * __width + x+startX;
+                var tmpMapIndex = (y + startY) * __width + x + startX;
                 if (__mapData[tmpMapIndex].value != GRID_EMPTY)
                 {
                     isFillEnable = false;
@@ -388,12 +422,25 @@ public class GameCoreLogic
         return true;
     }
 
+    bool __TryPushGridWithLineIndex(
+        int index, 
+        int mapIndex, 
+        bool isEndRevert, 
+        IPushGridHandler handler)
+    {
+        return __TryPushGridWithConfigIndex(
+            currentRoungData.lineNodes[index].index, 
+            mapIndex, 
+            isEndRevert, 
+            handler);
+    }
+
     public bool CheckPush(int index, int mapIndex, List<int> highLightGrids)
     {
         highLightGrids.Clear();
 
         __checkHandler.highLightGrids = highLightGrids;
-        return __TryPushGrid(index, mapIndex, true, __checkHandler);
+        return __TryPushGridWithLineIndex(index, mapIndex, true, __checkHandler);
     }
 
     public void SetMapUserData(int mapIndex, object userData)
@@ -422,7 +469,7 @@ public class GameCoreLogic
         //把方块放上去 检测消除 
         __pushHandler.lineCount = 0;
         __pushHandler.highLightGrids = highLightGrids;
-        bool isPushEnable = __TryPushGrid(index, mapIndex, false, __pushHandler);
+        bool isPushEnable = __TryPushGridWithLineIndex(index, mapIndex, false, __pushHandler);
 
         //如果没有放成功，直接返回
         if(!isPushEnable)
@@ -455,6 +502,8 @@ public class GameCoreLogic
             //计算得分
             int scoreIndex = __pushHandler.lineCount >= gameMeta.blastScoreArray.Length ? gameMeta.blastScoreArray.Length-1 : __pushHandler.lineCount-1;
             score += gameMeta.blastScoreArray[scoreIndex] * scoreScale;
+
+            scoreChangedEvent?.Invoke();
         }
 
         int emptyCount = 0;

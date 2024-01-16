@@ -31,6 +31,9 @@ public class GameRoot : MonoBehaviour
     {
         GameObject.DontDestroyOnLoad(gameObject);
 
+        var playerData = new GamePlayerData();
+        playerData.Load();
+
         __queueNodes = new Queue<EnterNode>();
         StartCoroutine(__RunLogic());
 

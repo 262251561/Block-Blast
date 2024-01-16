@@ -162,8 +162,6 @@ public class GamePerformerManager : MonoBehaviour
                         case GameCoreLogic.GameState.FAIL:
                             __owner.uiFailWindow.gameObject.SetActive(true);
                             break;
-                        case GameCoreLogic.GameState.SUCCESS:
-                            break;
                     }
                 }
                 else
