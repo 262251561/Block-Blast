@@ -12,8 +12,15 @@ public class UICanvasConfig : MonoBehaviour
     public int canvasWidth;
     public int canvasHeight;
 
+    public Camera uiCamera
+    {
+        private set;
+        get;
+    }
+
     private void Awake()
     {
+        uiCamera = gameObject.GetComponent<Camera>();
         s_Instance = this;
     }
 }

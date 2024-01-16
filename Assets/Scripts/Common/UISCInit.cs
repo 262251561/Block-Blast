@@ -8,10 +8,11 @@ using UnityEngine.UI;
 
 public class UISCInit : MonoBehaviour
 {
-    private void Awake()
+    private void Start()
     {
         var canvasRoot = gameObject.GetComponent<Canvas>();
         canvasRoot.renderMode = RenderMode.ScreenSpaceCamera;
+        canvasRoot.worldCamera = UICanvasConfig.s_Instance.uiCamera;
 
         var canvasScaler = gameObject.GetComponent<CanvasScaler>();
         canvasScaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;

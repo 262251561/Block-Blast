@@ -44,21 +44,21 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 556b333aba737814093ee9998235dd6b, type: 3}
-    totalSpriteSurfaceArea: 49207
+    totalSpriteSurfaceArea: 93192
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: 96c77c607e5f0e445bc9b99e9d18e48c, type: 3}
   - {fileID: 21300000, guid: f0248132161b5b343bdff34f0e41c803, type: 3}
   - {fileID: 21300000, guid: 4b8a0da840e1e6d46a1f6cc906d67620, type: 3}
+  - {fileID: 21300000, guid: 10830b19df2892642a790a157a6ccb0c, type: 3}
   - {fileID: 21300000, guid: 7f43020b115b0cb4daad14d99e9fcd8c, type: 3}
   - {fileID: 21300000, guid: 8b570a4e422938149ade07e6e3ce4751, type: 3}
   m_PackedSpriteNamesToIndex:
-  - gongneng_home
   - btn_home
   - btn_replay
+  - score_bg
   - replay_btn_bg
   - replay_bg
   m_RenderDataMap: {}
