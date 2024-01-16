@@ -53,6 +53,87 @@ public class GameCoreLogic
         }
     }
 
+    private interface IPushGridHandler
+    {
+        void OnCombineHorLine(int y, int startX, int endX);
+        void OnCombineVerLine(int x, int startX, int endX);
+    }
+
+    private class CheckPushHandler : IPushGridHandler
+    {
+        public GameCoreLogic owner;
+        public List<int> highLightGrids;
+
+        public void OnCombineHorLine(int y, int startX, int endX)
+        {
+            for (int x = startX; x < endX; ++x)
+            {
+                highLightGrids.Add(y * owner.__width + x);
+            }
+        }
+
+        public void OnCombineVerLine(int x, int startY, int endY)
+        {
+            for (int y = startY; y < endY; ++y)
+            {
+                highLightGrids.Add(y * owner.__width + x);
+            }
+        }
+    }
+
+    private class PushGridHandler : IPushGridHandler
+    {
+        public GameCoreLogic owner;
+        public int lineCount;
+        public List<int> highLightGrids;
+
+        void __OnChanged()
+        {
+            ++lineCount;
+        }
+
+        public void OnCombineHorLine(int y, int startX, int endX)
+        {
+            __OnChanged();
+
+            for (int x = startX; x < endX; ++x)
+            {
+                int index = y * owner.__width + x;
+                var srcData = owner.__mapData[index];
+                srcData.value = GRID_EMPTY;
+                owner.__mapData[index] = srcData;
+            }
+
+            if (highLightGrids == null)
+                return;
+
+            for (int x = startX; x < endX; ++x)
+            {
+                highLightGrids.Add(y * owner.__width + x);
+            }
+        }
+
+        public void OnCombineVerLine(int x, int startY, int endY)
+        {
+            __OnChanged();
+            for (int y = startY; y < endY; ++y)
+            {
+                int index = y * owner.__width + x;
+                var srcData = owner.__mapData[index];
+                srcData.value = GRID_EMPTY;
+                owner.__mapData[index] = srcData;
+            }
+
+            if (highLightGrids == null)
+                return;
+
+            for (int y = startY; y < endY; ++y)
+            {
+                highLightGrids.Add(y * owner.__width + x);
+            }
+        }
+    }
+
     public Action lineRoundChangedEvent;
 
     private int __round;
@@ -127,9 +208,23 @@ public class GameCoreLogic
         }
     }
 
+    int __TryGetCrushBlockIndex()
+    {
+
+    }
+
     int __GetBlockIndex(int lineIndex)
     {
         var gameMeta = GameDataMeta.s_Instance;
+        //尽量刷出可以消除的
+        if(__round <= 10)
+        {
+
+        }
+        else
+        {
+            //刷出可放下的
+        }
         switch(lineIndex)
         {
             case 0:
@@ -151,98 +246,6 @@ public class GameCoreLogic
         }
 
         lineRoundChangedEvent?.Invoke();
-    }
-
-    private interface IPushGridHandler
-    {
-        void OnCombineHorLine(int y, int startX, int endX);
-        void OnCombineVerLine(int x, int startX, int endX);
-    }
-
-    private class CheckPushHandler : IPushGridHandler
-    {
-        public GameCoreLogic owner;
-        public List<int> highLightGrids;
-
-        public void OnCombineHorLine(int y, int startX, int endX)
-        {
-            for (int x = startX; x < endX; ++x)
-            {
-                highLightGrids.Add(y * owner.__width + x);
-            }
-        }
-
-        public void OnCombineVerLine(int x, int startY, int endY)
-        {
-            for (int y = startY; y < endY; ++y)
-            {
-                highLightGrids.Add(y * owner.__width + x);
-            }
-        }
-    }
-
-    private class PushGridHandler : IPushGridHandler
-    {
-        public GameCoreLogic owner;
-        public int lineCount;
-        public List<int> highLightGrids;
-
-        void __OnChanged()
-        {
-            ++lineCount;
-        }
-
-        public void OnCombineHorLine(int y, int startX, int endX)
-        {
-            __OnChanged();
-
-            for (int x = startX; x < endX; ++x)
-            {
-                int index = y * owner.__width + x;
-                var srcData = owner.__mapData[index];
-                srcData .value = GRID_EMPTY;
-                owner.__mapData[index] = srcData;
-            }
-
-            if (highLightGrids == null)
-                return;
-
-            for (int x = startX; x < endX; ++x)
-            {
-                highLightGrids.Add(y * owner.__width + x);
-            }
-        }
-
-        public void OnCombineVerLine(int x, int startY, int endY)
-        {
-            __OnChanged();
-            for (int y = startY; y < endY; ++y)
-            {
-                int index = y * owner.__width + x;
-                var srcData = owner.__mapData[index];
-                srcData.value = GRID_EMPTY;
-                owner.__mapData[index] = srcData;
-            }
-
-            if (highLightGrids == null)
-                return;
-
-            for (int y = startY; y < endY; ++y)
-            {
-                highLightGrids.Add(y * owner.__width + x);
-            }
-        }
-    }
-
-    private class CheckEndHandler : IPushGridHandler
-    {
-        public void OnCombineHorLine(int y, int startX, int endX)
-        {
-        }
-
-        public void OnCombineVerLine(int x, int startX, int endX)
-        {
-        }
     }
 
     bool __CheckPushGridByConfigIndex(int configIndex, int mapIndex)
