@@ -156,6 +156,8 @@ public class GameCoreLogic
     private int __width;
     private int __height;
 
+    private List<int> __ingoreIndices;
+
     public int score
     {
         private set;
@@ -194,6 +196,8 @@ public class GameCoreLogic
 
         __counterHandler = new CheckCounterHandler();
         currentRoungData = new RoundState();
+
+        __ingoreIndices = new List<int>();
     }
 
     public void Init()
@@ -262,8 +266,12 @@ public class GameCoreLogic
             int i, length = gameMeta.blockConfigArray.Length;
             for(i=0; i<length; ++i)
             {
+                if (__ingoreIndices.Contains(i))
+                    continue;
+
                 if(__CanCrushWithConfigIndex(i))
                 {
+                    __ingoreIndices.Add(i);
                     return i;
                 }
             }
@@ -275,7 +283,7 @@ public class GameCoreLogic
     public void RefreshLineRound()
     {
         ++__round;
-
+        __ingoreIndices.Clear();
         for (int i = 0; i < RoundState.MAX_COUNT; ++i)
         {
             currentRoungData.lineNodes[i] = new BlockNode { index = __GetBlockIndex() };

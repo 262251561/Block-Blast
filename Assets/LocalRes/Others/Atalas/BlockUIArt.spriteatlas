@@ -6,7 +6,7 @@ SpriteAtlas:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: BlockArt
+  m_Name: BlockUIArt
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -35,7 +35,7 @@ SpriteAtlas:
       m_ForceMaximumCompressionQuality_BC6H_BC7: 0
     packingSettings:
       serializedVersion: 2
-      padding: 8
+      padding: 4
       blockOffset: 1
       allowAlphaSplitting: 0
       enableRotation: 1
@@ -43,36 +43,24 @@ SpriteAtlas:
     secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
-    - {fileID: 102900000, guid: b2d8200c3082ad9499fde4c2fa5f1efc, type: 3}
-    totalSpriteSurfaceArea: 11264
+    - {fileID: 102900000, guid: 556b333aba737814093ee9998235dd6b, type: 3}
+    totalSpriteSurfaceArea: 49207
     bindAsDefault: 1
     isAtlasV2: 0
     cachedData: {fileID: 0}
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
-  - {fileID: 21300000, guid: bf837a70bf01ab343bf63bd46c90a27e, type: 3}
-  - {fileID: 21300000, guid: abcb0b125632d2f4bac9ca5456419830, type: 3}
-  - {fileID: 21300000, guid: 34dd69524b4ea0e499fe8497a00da7ab, type: 3}
-  - {fileID: 21300000, guid: c89659f2245decc4db2e6672f0f7a0ca, type: 3}
-  - {fileID: 21300000, guid: b00cb284567155847850b25f2d0e0a0d, type: 3}
-  - {fileID: 21300000, guid: aeab841580346844585dd67ba82665b6, type: 3}
-  - {fileID: 21300000, guid: c6980dd5993950f42975e0b09168dd82, type: 3}
-  - {fileID: 21300000, guid: b1acbdf5434e38b46967b00907081530, type: 3}
-  - {fileID: 21300000, guid: 785d2c8953abc0440afe1d2b7031be6f, type: 3}
-  - {fileID: 21300000, guid: 1beb1dd9629b978468a3dff78882a2f5, type: 3}
-  - {fileID: 21300000, guid: e8b2f25d9190477468b1fb59038706e6, type: 3}
+  - {fileID: 21300000, guid: 96c77c607e5f0e445bc9b99e9d18e48c, type: 3}
+  - {fileID: 21300000, guid: f0248132161b5b343bdff34f0e41c803, type: 3}
+  - {fileID: 21300000, guid: 4b8a0da840e1e6d46a1f6cc906d67620, type: 3}
+  - {fileID: 21300000, guid: 7f43020b115b0cb4daad14d99e9fcd8c, type: 3}
+  - {fileID: 21300000, guid: 8b570a4e422938149ade07e6e3ce4751, type: 3}
   m_PackedSpriteNamesToIndex:
-  - g_c
-  - g_lan
-  - g_dz
-  - g_h
-  - g_lv
-  - grid_bg
-  - g_huang
-  - g_z
-  - junei_bg
-  - g_f
-  - g_q
+  - gongneng_home
+  - btn_home
+  - btn_replay
+  - replay_btn_bg
+  - replay_bg
   m_RenderDataMap: {}
-  m_Tag: BlockArt
+  m_Tag: BlockUIArt
   m_IsVariant: 0
