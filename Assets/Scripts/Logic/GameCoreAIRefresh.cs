@@ -130,16 +130,18 @@ public partial class GameCoreLogic
         return __TryGetFilledBlockIndex();
     }
 
-    void __NormalRefresh()
+    void __NormalRefresh(bool isGetFilledBlockOnly)
     {
         for (int i = 0; i < RoundState.MAX_COUNT; ++i)
-            currentRoungData.lineNodes[i] = new BlockNode { index = __GetBlockIndex() };
+            currentRoungData.lineNodes[i] = new BlockNode { index = isGetFilledBlockOnly ? __TryGetFilledBlockIndex() : __GetBlockIndex() };
     }
 
     void __AIStepRefresh()
     {
         float bestScore = 0.0f;
-        currentRoungData.lineNodes[0] = new BlockNode { index = __GetBlockIndex() };
+        int firstIndex = __TryGetFilledBlockIndex();
+        __ingoreIndices.Add(firstIndex);
+        currentRoungData.lineNodes[0] = new BlockNode { index = firstIndex };
 
         __SearchDepth(
             1,
@@ -168,6 +170,9 @@ public partial class GameCoreLogic
             {
                 var mapIndex = __emptyMapIndices[i];
 
+                if (__ingoreIndices.Contains(j))
+                    continue;
+                
                 var searchStack = new NativeList<int>(Allocator.Temp);
                 __counterHandler.counter = 0;
                 if (__TryPushGridWithConfigIndex(
@@ -177,6 +182,8 @@ public partial class GameCoreLogic
                     __counterHandler,
                     searchStack))
                 {
+                    __ingoreIndices.Add(j);
+
                     float scaler = __counterHandler.counter * 10000.0f;
                     currentRoungData.lineNodes[depth] = new BlockNode { index = j };
 
@@ -210,7 +217,9 @@ public partial class GameCoreLogic
 
                     //revert stack
                     {
-                        for(int k=0, kCount = searchStack.Length; k<kCount; ++k)
+                        __ingoreIndices.Remove(j);
+
+                        for (int k=0, kCount = searchStack.Length; k<kCount; ++k)
                             __mapData[searchStack[k]] = new MapGridState { value = GRID_EMPTY };
 
                         currentRoungData.lineNodes[depth] = default;
@@ -244,7 +253,7 @@ public partial class GameCoreLogic
         __FillToEmptyMapIndices();
 
         if (__round < BEGIN_REFRESH_SEARCH_ROUND)
-            __NormalRefresh();
+            __NormalRefresh(false);
         else
         {
             ++__currentRoundIndex;
@@ -256,7 +265,7 @@ public partial class GameCoreLogic
                         __refreshRoundState = RefreshRoundState.NORMAL;
                     break;
                 case RefreshRoundState.NORMAL:
-                    __NormalRefresh();
+                    __NormalRefresh(true);
                     if (__currentRoundIndex >= NORMAL_ROUND_COUNT)
                         __refreshRoundState = RefreshRoundState.SEARCH;
                     break;
