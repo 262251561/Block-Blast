@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Unity.Collections;
 
-public class GameCoreLogic
+public partial class GameCoreLogic
 {
     public const int GRID_EMPTY = 0;
     public const int GRID_BLOCK = 1;
@@ -156,8 +157,6 @@ public class GameCoreLogic
     private int __width;
     private int __height;
 
-    private List<int> __ingoreIndices;
-
     public int score
     {
         private set;
@@ -197,7 +196,7 @@ public class GameCoreLogic
         __counterHandler = new CheckCounterHandler();
         currentRoungData = new RoundState();
 
-        __ingoreIndices = new List<int>();
+        __InitRefreshValues();
     }
 
     public void Init()
@@ -215,79 +214,11 @@ public class GameCoreLogic
         __round = 0;
     }
 
-    int __TryGetFilledBlockIndex()
-    {
-        int end = GameDataMeta.s_Instance.blockConfigArray.Length;
-        while(true)
-        {
-            if (end == 0)
-                return 0;
-
-            int configIndex = UnityEngine.Random.Range(0, end);
-            if (__CanFillBlockWithConfigIndex(configIndex))
-                return configIndex;
-
-            end >>= 1;
-        }
-    }
-
-    bool __CanCrushWithConfigIndex(int configIndex)
-    {
-        //遍历所有的空格子，尝试放进去
-        int i, j;
-        for (i = 0; i < __width; ++i)
-        {
-            for (j = 0; j < __height; ++j)
-            {
-                int mapIndex = j * __width + i;
-                if (__mapData[mapIndex].value != GRID_EMPTY)
-                    continue;
-
-                __counterHandler.counter = 0;
-                __TryPushGridWithConfigIndex(
-                    configIndex, 
-                    mapIndex, 
-                    true, 
-                    __counterHandler);
-
-                if (__counterHandler.counter > 0)
-                    return true;
-            }
-        }
-
-        return false;
-    }
-
-    int __GetBlockIndex()
-    {
-        var gameMeta = GameDataMeta.s_Instance;
-        if(__round <= 10)
-        {
-            int i, length = gameMeta.blockConfigArray.Length;
-            for(i=0; i<length; ++i)
-            {
-                if (__ingoreIndices.Contains(i))
-                    continue;
-
-                if(__CanCrushWithConfigIndex(i))
-                {
-                    __ingoreIndices.Add(i);
-                    return i;
-                }
-            }
-        }
-
-        return __TryGetFilledBlockIndex();
-    }
-
     public void RefreshLineRound()
     {
         ++__round;
-        __ingoreIndices.Clear();
-        for (int i = 0; i < RoundState.MAX_COUNT; ++i)
-        {
-            currentRoungData.lineNodes[i] = new BlockNode { index = __GetBlockIndex() };
-        }
+
+        __RefreshRoundData();
 
         lineRoundChangedEvent?.Invoke();
     }
@@ -334,7 +265,8 @@ public class GameCoreLogic
         int configIndex,
         int mapIndex,
         bool isEndRevert,
-        IPushGridHandler handler)
+        IPushGridHandler handler,
+        NativeList<int> callbackStack = default)
     {
         var gameDataMeta = GameDataMeta.s_Instance;
         var blockData = gameDataMeta.blockConfigArray[configIndex];
@@ -366,6 +298,8 @@ public class GameCoreLogic
 
                 __mapData[tmpMapIndex].value = GRID_BLOCK;
                 __fillStack.Add(tmpMapIndex);
+                if (callbackStack.IsCreated)
+                    callbackStack.Add(tmpMapIndex);
             }
 
             if (!isFillEnable)
@@ -376,7 +310,12 @@ public class GameCoreLogic
         if (!isFillEnable)
         {
             for (i = 0; i < length; ++i)
+            {
                 __mapData[__fillStack[i]] = new MapGridState { value = GRID_EMPTY };
+            }
+
+            if (callbackStack.IsCreated)
+                callbackStack.Clear();
 
             return false;
         }
@@ -553,17 +492,11 @@ public class GameCoreLogic
     bool __CanFillBlockWithConfigIndex(int configIndex)
     {
         //遍历所有的空格子，尝试放进去
-        int i, j;
-        for (i = 0; i < __width; ++i)
+        int i, count = __emptyMapIndices.Count;
+        for (i = 0; i < count; ++i)
         {
-            for (j = 0; j < __height; ++j)
-            {
-                if (__mapData[j * __width + i].value != GRID_EMPTY)
-                    continue;
-
-                if (__CheckPushGridByConfigIndex(configIndex, j * __width + i))
-                    return true;
-            }
+            if (__CheckPushGridByConfigIndex(configIndex, __emptyMapIndices[i]))
+                return true;
         }
 
         return false;
