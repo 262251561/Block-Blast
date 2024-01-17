@@ -8,10 +8,24 @@ using UnityEngine;
 
 public partial class GameCoreLogic
 {
+    public const int BEGIN_REFRESH_CRSH_ROUND = 5;
+    public const int BEGIN_REFRESH_SEARCH_ROUND = 40;
+    public const int SEARCH_ROUND_COUNT = 3;
+    public const int NORMAL_ROUND_COUNT = 3;
+
+    private enum RefreshRoundState
+    {
+        SEARCH,
+        NORMAL,
+    }
+
     private List<int> __ingoreIndices;
     private List<int> __emptyMapIndices;
     private List<int> __randomListIndices;
     private int[] __bestRoundConfigs;
+
+    private int __currentRoundIndex;
+    private RefreshRoundState __refreshRoundState;
 
     void __InitRefreshValues()
     {
@@ -19,6 +33,8 @@ public partial class GameCoreLogic
         __emptyMapIndices = new List<int>();
         __randomListIndices = new List<int>();
         __bestRoundConfigs = new int[RoundState.MAX_COUNT];
+        __refreshRoundState = RefreshRoundState.SEARCH;
+        __currentRoundIndex = 0;
     }
 
     int __TryGetFilledBlockIndex()
@@ -67,7 +83,7 @@ public partial class GameCoreLogic
     int __GetBlockIndex()
     {
         var gameMeta = GameDataMeta.s_Instance;
-        if (__round >= 5)
+        if (__round >= BEGIN_REFRESH_CRSH_ROUND)
         {
             __randomListIndices.Clear();
             int i, length = gameMeta.blockConfigArray.Length;
@@ -85,7 +101,7 @@ public partial class GameCoreLogic
 
                 if (__CanCrushWithConfigIndex(randomConfigIndex))
                 {
-                    __ingoreIndices.Add(i);
+                    __ingoreIndices.Add(randomConfigIndex);
                     return i;
                 }
             }
@@ -207,10 +223,24 @@ public partial class GameCoreLogic
         __ingoreIndices.Clear();
         __FillToEmptyMapIndices();
 
-        float density = __emptyMapIndices.Count * 1.0f / (__width * __height);
-        if (density >= 0.5f)
-            __AIStepRefresh();
-        else
+        if (__round < BEGIN_REFRESH_SEARCH_ROUND)
             __NormalRefresh();
+        else
+        {
+            ++__currentRoundIndex;
+            switch(__refreshRoundState)
+            {
+                case RefreshRoundState.SEARCH:
+                    __AIStepRefresh();
+                    if (__currentRoundIndex >= SEARCH_ROUND_COUNT)
+                        __refreshRoundState = RefreshRoundState.NORMAL;
+                    break;
+                case RefreshRoundState.NORMAL:
+                    __NormalRefresh();
+                    if (__currentRoundIndex >= NORMAL_ROUND_COUNT)
+                        __refreshRoundState = RefreshRoundState.SEARCH;
+                    break;
+            }
+        }
     }
 }
