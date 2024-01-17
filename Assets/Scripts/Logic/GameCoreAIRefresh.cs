@@ -67,6 +67,19 @@ public partial class GameCoreLogic
         return 0;
     }
 
+    bool __CanFillBlockWithConfigIndex(int configIndex)
+    {
+        //遍历所有的空格子，尝试放进去
+        int i, count = __emptyMapIndices.Count;
+        for (i = 0; i < count; ++i)
+        {
+            if (__CheckPushGridByConfigIndex(configIndex, __emptyMapIndices[i]))
+                return true;
+        }
+
+        return false;
+    }
+
     bool __CanCrushWithConfigIndex(int configIndex)
     {
         //遍历所有的空格子，尝试放进去

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DG.Tweening;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,11 +11,16 @@ using UnityEngine.UI;
 
 public class UIReplayWindow : UIBase
 {
+    public const float WAIT_TIME = 0.5f;
+
     private Text __localScore;
     private Text __bestScore;
 
+    private int __type;
+
     private void Start()
     {
+        __type = 0;
         GetCT<Button>("btnMainPage").onClick.AddListener(OnMainPage);
         GetCT<Button>("btnRestart").onClick.AddListener(OnRestart);
     }
@@ -36,13 +43,34 @@ public class UIReplayWindow : UIBase
         }
     }
 
+    IEnumerator __ContinueLogin()
+    {
+        gameObject.SetActive(false);
+        yield return UnityExtension.WaitForSeconds(WAIT_TIME);
+        GameRoot.s_Instance.EnterState(GameRoot.State.LOGIN, null);
+    }
+
+    IEnumerator __ContinueRefresh()
+    {
+        gameObject.SetActive(false);
+        yield return UnityExtension.WaitForSeconds(WAIT_TIME);
+        GameRoot.s_Instance.EnterState(GameRoot.State.GAME, null);
+    }
+
+    void OnPlayComplete()
+    {
+
+    }
+
     public void OnMainPage()
     {
-        GameRoot.s_Instance.EnterState(GameRoot.State.LOGIN, null);
+        __type = 1;
+        GameRoot.s_Instance.StartCoroutine(__ContinueLogin());
     }
 
     public void OnRestart()
     {
-        GameRoot.s_Instance.EnterState(GameRoot.State.GAME, null);
+        __type = 2;
+        GameRoot.s_Instance.StartCoroutine(__ContinueRefresh());
     }
 }

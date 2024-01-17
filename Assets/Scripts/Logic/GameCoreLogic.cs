@@ -469,7 +469,7 @@ public partial class GameCoreLogic
             bool anySuccess = false;
             for(i=0; i<emptyCount; ++i)
             {
-                if(__CanFillBlockWithLineIndex(noneEmptyIndices[i]))
+                if(__CheckCanFillBlockWithLineIndex(noneEmptyIndices[i]))
                 {
                     anySuccess = true;
                     break;
@@ -484,19 +484,26 @@ public partial class GameCoreLogic
         return GameState.RUNNING;
     }
 
-    bool __CanFillBlockWithLineIndex(int lineIndex)
+    bool __CheckCanFillBlockWithLineIndex(int lineIndex)
     {
-        return __CanFillBlockWithConfigIndex(currentRoungData.lineNodes[lineIndex].index);
+        return __CheckCanFillBlockWithConfigIndex(currentRoungData.lineNodes[lineIndex].index);
     }
 
-    bool __CanFillBlockWithConfigIndex(int configIndex)
+    bool __CheckCanFillBlockWithConfigIndex(int configIndex)
     {
         //遍历所有的空格子，尝试放进去
-        int i, count = __emptyMapIndices.Count;
-        for (i = 0; i < count; ++i)
+        int i, j;
+        for (i = 0; i < __width; ++i)
         {
-            if (__CheckPushGridByConfigIndex(configIndex, __emptyMapIndices[i]))
-                return true;
+            for(j=0; j<__height; ++j)
+            {
+                int mapIndex = j*__width + i;
+                if (__mapData[mapIndex].value != GRID_EMPTY)
+                    continue;
+
+                if (__CheckPushGridByConfigIndex(configIndex, mapIndex))
+                    return true;
+            }
         }
 
         return false;

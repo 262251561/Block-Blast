@@ -136,21 +136,26 @@ public class GamePerformerManager : MonoBehaviour
                     }
 
                     //消失
-                    GridSpriteHideLogic hideLogic = ObjectPool<GridSpriteHideLogic>.s_instance.Allocate();
-                    hideLogic.Refresh(__owner);
                     int i, length = __hightLights.Count;
-                    for (i = 0; i < length; ++i)
+                    if(length > 0)
                     {
-                        var node = __owner.__coreLogic.GetMapUserData(__hightLights[i]) as GridSprite;
-                        if (node != null)
+                        GridSpriteHideLogic hideLogic = ObjectPool<GridSpriteHideLogic>.s_instance.Allocate();
+                        hideLogic.Refresh(__owner);
+                        for (i = 0; i < length; ++i)
                         {
-                            hideLogic.AddSprite(node);
-                            __owner.__coreLogic.SetMapUserData(__hightLights[i], null);
+                            var node = __owner.__coreLogic.GetMapUserData(__hightLights[i]) as GridSprite;
+                            if (node != null)
+                            {
+                                hideLogic.AddSprite(node);
+                                __owner.__coreLogic.SetMapUserData(__hightLights[i], null);
+                            }
                         }
+
+                        CoroutineQueuePool.s_Instance.PushRun(hideLogic);
+
+                        Handheld.Vibrate();
                     }
-
-                    CoroutineQueuePool.s_Instance.PushRun(hideLogic);
-
+                    
                     //释放自己
                     __owner.__FreeBlockSprite(bs);
 

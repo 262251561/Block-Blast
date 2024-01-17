@@ -20,6 +20,7 @@ public class GameRoot : MonoBehaviour
 
     public static GameRoot s_Instance;
 
+    public State currentState;
     private Queue<EnterNode> __queueNodes;
 
     private void Awake()
@@ -34,6 +35,8 @@ public class GameRoot : MonoBehaviour
         var playerData = new GamePlayerData();
         playerData.Load();
 
+        currentState = State.NONE;
+
         __queueNodes = new Queue<EnterNode>();
         StartCoroutine(__RunLogic());
 
@@ -47,6 +50,16 @@ public class GameRoot : MonoBehaviour
 
     IEnumerator __LoadScene(int sceneIndex)
     {
+        switch(currentState)
+        {
+            case State.LOGIN:
+                yield return SceneManager.UnloadSceneAsync(0);
+                break;
+            case State.GAME:
+                yield return SceneManager.UnloadSceneAsync(1);
+                break;
+        }
+
         var loader = SceneManager.LoadSceneAsync(sceneIndex, LoadSceneMode.Single);
         while(!loader.isDone)
         {
