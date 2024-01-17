@@ -39,42 +39,49 @@ public partial class GameCoreLogic
 
     int __TryGetFilledBlockIndex()
     {
-        int end = GameDataMeta.s_Instance.blockConfigArray.Length;
-        while (true)
+        __randomListIndices.Clear();
+        int i, length = GameDataMeta.s_Instance.blockConfigArray.Length;
+        for (i = 0; i < length; ++i)
+            __randomListIndices.Add(i);
+
+        while (__randomListIndices.Count > 0)
         {
-            if (end == 0)
-                return 0;
+            int index = UnityEngine.Random.Range(0, __randomListIndices.Count);
 
-            int configIndex = UnityEngine.Random.Range(0, end);
+            var configIndex = __randomListIndices[index];
+            if (__ingoreIndices.Contains(configIndex))
+            {
+                __randomListIndices.RemoveAtSwapBack(index);
+                continue;
+            }
+
             if (__CanFillBlockWithConfigIndex(configIndex))
+            {
+                __ingoreIndices.Add(configIndex);
                 return configIndex;
+            }
 
-            end >>= 1;
+            __randomListIndices.RemoveAtSwapBack(index);
         }
+
+        return 0;
     }
 
     bool __CanCrushWithConfigIndex(int configIndex)
     {
         //遍历所有的空格子，尝试放进去
-        int i, j;
-        for (i = 0; i < __width; ++i)
+        int i, count = __emptyMapIndices.Count;
+        for (i = 0; i < count; ++i)
         {
-            for (j = 0; j < __height; ++j)
-            {
-                int mapIndex = j * __width + i;
-                if (__mapData[mapIndex].value != GRID_EMPTY)
-                    continue;
+            __counterHandler.counter = 0;
+            __TryPushGridWithConfigIndex(
+                configIndex,
+                __emptyMapIndices[i],
+                true,
+                __counterHandler);
 
-                __counterHandler.counter = 0;
-                __TryPushGridWithConfigIndex(
-                    configIndex,
-                    mapIndex,
-                    true,
-                    __counterHandler);
-
-                if (__counterHandler.counter > 0)
-                    return true;
-            }
+            if (__counterHandler.counter > 0)
+                return true;
         }
 
         return false;
@@ -102,7 +109,7 @@ public partial class GameCoreLogic
                 if (__CanCrushWithConfigIndex(randomConfigIndex))
                 {
                     __ingoreIndices.Add(randomConfigIndex);
-                    return i;
+                    return randomConfigIndex;
                 }
             }
         }
