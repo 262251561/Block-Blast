@@ -993,6 +993,90 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 84f21fdbb0bb9544bbc842aad3c33cf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1001 &825403252
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 1746635809}
+    m_Modifications:
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_RootOrder
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 101429371288691604, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_Name
+      value: GemBreaking_FX
+      objectReference: {fileID: 0}
+    - target: {fileID: 101429371288691604, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+--- !u!4 &825403253 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 99858736815533410, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+  m_PrefabInstance: {fileID: 825403252}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &825403254 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 101429371288691604, guid: 87a74a09c6b3bbb49bb6652837294e47, type: 3}
+  m_PrefabInstance: {fileID: 825403252}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &825403255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 825403254}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc6428d26bb2a8041a12c14b95b3e5a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  showTime: 1
 --- !u!1 &970808814
 GameObject:
   m_ObjectHideFlags: 0
@@ -1710,7 +1794,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!81 &1566217833
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1929,6 +2013,7 @@ Transform:
   - {fileID: 1179643311}
   - {fileID: 1803032973}
   - {fileID: 576348433}
+  - {fileID: 825403253}
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1969,6 +2054,7 @@ MonoBehaviour:
   blockSpritePrefab: {fileID: 5876853275931064828, guid: 202dab6090ad4624fbe237e36c97c652, type: 3}
   spPrefab: {fileID: 437945778128173490, guid: 7e62ca9f6d5d8bd4db482ad4fad85da9, type: 3}
   gridSpritePrefab: {fileID: -7628599891399250453, guid: f650183e40887bf43906b19e7cf01b0c, type: 3}
+  blastEffect: {fileID: 825403254}
   gridSize: 0.8192
   ghostAlpha: 0.5
   YOffset: 2

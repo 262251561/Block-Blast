@@ -112,16 +112,13 @@ public partial class GameCoreLogic
         {
             __OnChanged();
 
-            for (int x = startX; x < endX; ++x)
-            {
-                int index = y * owner.__width + x;
-                var srcData = owner.__mapData[index];
-                srcData.value = GRID_EMPTY;
-                owner.__mapData[index] = srcData;
-            }
-
-            if (highLightGrids == null)
-                return;
+            //for (int x = startX; x < endX; ++x)
+            //{
+            //    int index = y * owner.__width + x;
+            //    var srcData = owner.__mapData[index];
+            //    srcData.value = GRID_EMPTY;
+            //    owner.__mapData[index] = srcData;
+            //}
 
             for (int x = startX; x < endX; ++x)
             {
@@ -132,16 +129,16 @@ public partial class GameCoreLogic
         public void OnCombineVerLine(int x, int startY, int endY)
         {
             __OnChanged();
-            for (int y = startY; y < endY; ++y)
-            {
-                int index = y * owner.__width + x;
-                var srcData = owner.__mapData[index];
-                srcData.value = GRID_EMPTY;
-                owner.__mapData[index] = srcData;
-            }
+            //for (int y = startY; y < endY; ++y)
+            //{
+            //    int index = y * owner.__width + x;
+            //    var srcData = owner.__mapData[index];
+            //    srcData.value = GRID_EMPTY;
+            //    owner.__mapData[index] = srcData;
+            //}
 
-            if (highLightGrids == null)
-                return;
+            //if (highLightGrids == null)
+            //    return;
 
             for (int y = startY; y < endY; ++y)
             {
@@ -422,6 +419,15 @@ public partial class GameCoreLogic
         if(!isPushEnable)
             return GameState.RUNNING;
 
+        int i, length = highLightGrids.Count;
+        for(i=0; i<length; ++i)
+        {
+            int blastMapIndex = highLightGrids[i];
+            var srcData = __mapData[blastMapIndex];
+            srcData.value = GRID_EMPTY;
+            __mapData[blastMapIndex] = srcData;
+        }
+
         isPushOK = true;
 
         currentRoungData.SetNodeEmpty(index);
@@ -455,7 +461,6 @@ public partial class GameCoreLogic
 
         int emptyCount = 0;
         int* noneEmptyIndices = stackalloc int[3];
-        int i;
         for(i=0; i< RoundState.MAX_COUNT; ++i)
         {
             if (!currentRoungData.IsNodeEmpty(i))

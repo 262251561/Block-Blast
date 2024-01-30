@@ -24,8 +24,14 @@ public class GridSpriteHideLogic : CoroutineQueuePool.ICoroutNode
         __performerManager = pool;
     }
 
-    public void AddSprite(GridSprite sp)
+    public void AddSprite(GridSprite sp, bool isRepeatCheck = true)
     {
+        if(isRepeatCheck)
+        {
+            if (__sprites.Contains(sp))
+                return;
+        }
+
         __sprites.Add(sp);
     }
 

@@ -153,6 +153,8 @@ public class GamePerformerManager : MonoBehaviour
 
                         CoroutineQueuePool.s_Instance.PushRun(hideLogic);
 
+                        __owner.blastEffect.SetActive(true);
+
                         Handheld.Vibrate();
                     }
                     
@@ -181,6 +183,7 @@ public class GamePerformerManager : MonoBehaviour
     public BlockSprite blockSpritePrefab;
     public SpriteRenderer spPrefab;
     public GridSprite gridSpritePrefab;
+    public GameObject blastEffect;
 
     public float gridSize;
 
